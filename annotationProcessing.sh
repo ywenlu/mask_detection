@@ -9,7 +9,10 @@ export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
 python setup.py build
 python setup.py install
 
+cd ../..
+python detection_utils\generate_csv.py xml mergedData\Annotations\ mergedData\annotation.csv
+python detection_utils\generate_pbtxt.py csv mergedData\Annotation.csv mergedData\labelmap.pbtxt
+python detection_utils\generate_train_eval.py mergedData\Annotation.csv -f 0.99
+python detection_utils\generate_tfrecord.py mergedData\Annotation_train.csv mergedData\labelmap.pbtxt mergedData\JPEGImages\ mergedData\train.record
+python detection_utils\generate_tfrecord.py mergedData\Annotation_eval.csv mergedData\labelmap.pbtxt mergedData\JPEGImages\ mergedData\eval.record
 
-python detection_utils\generate_csv.py xml data\Annotations\ data\annotation.csv
-python detection_utils\generate_pbtxt.py csv data\annotation.csv data\labelmap.pbtxt
-python detection_utils\generate_train_eval.py data\annotation.csv -f 0.95
