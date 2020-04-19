@@ -106,13 +106,13 @@ def class_dict_from_pbtxt(pbtxt_path):
         if l.startswith('display_name')
     ]
 
-    print(data)
+    
 
     # join ids and display_names into a single dictionary
     class_dict = {}
     for i in range(len(ids)):
         class_dict[names[i]] = ids[i]
-
+    print(class_dict)
     return class_dict
 
 
