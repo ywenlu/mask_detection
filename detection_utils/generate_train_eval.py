@@ -3,6 +3,7 @@ import argparse
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import ntpath
+import random
 
 
 def path_leaf(path):
@@ -23,7 +24,7 @@ if __name__ == "__main__":
         '-f',
         metavar='train_frac',
         type=float,
-        default=.75,
+        default=.9,
         help=
         'fraction of the dataset that will be separated for training (default .75)'
     )
@@ -55,10 +56,16 @@ if __name__ == "__main__":
 
     df = pd.read_csv(args.input_csv)
 
-    # get 'class' column for stratification
-    strat = df['class'] if args.s else None
+    examples_list = list(df['filename'].unique())
+    random.seed(42)
+    random.shuffle(examples_list)
+    num_examples = len(examples_list)
+    num_train = int(args.f * num_examples)
+    train_examples = examples_list[:num_train]
+    val_examples = examples_list[num_train:]
 
-    train_df, validation_df = train_test_split(df, test_size=None, train_size=args.f, stratify=strat)
+    train_df= df.loc[df['filename'].isin(train_examples),:]
+    validation_df = df.loc[df['filename'].isin(val_examples),:]
 
     # output files have the same name of the input file, with some extra stuff appended
     csv_file = path_leaf(args.input_csv)
