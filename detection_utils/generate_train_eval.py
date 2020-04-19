@@ -7,9 +7,9 @@ import random
 
 
 def path_leaf(path):
-	head, tail = ntpath.split(path)
-	return tail or ntpath.basename(head)
-	
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -24,7 +24,7 @@ if __name__ == "__main__":
         '-f',
         metavar='train_frac',
         type=float,
-        default=.9,
+        default=.75,
         help=
         'fraction of the dataset that will be separated for training (default .75)'
     )
@@ -43,6 +43,24 @@ if __name__ == "__main__":
         'Directory to output train and evaluation datasets (default input_csv directory)'
     )
 
+    parser.add_argument(
+        '-v',
+        metavar='valid_str',
+        type=str,
+        default=None,
+        help=
+        'Validate example prefix string'
+    )
+
+    parser.add_argument(
+        '-cheat',
+        metavar='if_cheat',
+        type=bool,
+        default=True,
+        help=
+        'add validation data to train'
+    )
+
     args = parser.parse_args()
 
     if args.f < 0 or args.f > 1:
@@ -56,17 +74,23 @@ if __name__ == "__main__":
 
     df = pd.read_csv(args.input_csv)
 
-    examples_list = list(df['filename'].unique())
-    random.seed(42)
-    random.shuffle(examples_list)
-    num_examples = len(examples_list)
-    num_train = int(args.f * num_examples)
-    train_examples = examples_list[:num_train]
-    val_examples = examples_list[num_train:]
+    if args.v:
+        if args.cheat:
+            train_df = df
+        else:
+            train_df = df.loc[~df['filename'].str.startswith(args.v), :]
+        validation_df = df.loc[df['filename'].str.startswith(args.v), :]
+    else:
+        examples_list = list(df['filename'].unique())
+        random.seed(42)
+        random.shuffle(examples_list)
+        num_examples = len(examples_list)
+        num_train = int(args.f * num_examples)
+        train_examples = examples_list[:num_train]
+        val_examples = examples_list[num_train:]
 
-    train_df= df.loc[df['filename'].isin(train_examples),:]
-    validation_df = df.loc[df['filename'].isin(val_examples),:]
-
+        train_df = df.loc[df['filename'].isin(train_examples), :]
+        validation_df = df.loc[df['filename'].isin(val_examples), :]
     # output files have the same name of the input file, with some extra stuff appended
     csv_file = path_leaf(args.input_csv)
     new_csv_name = os.path.splitext(csv_file)[0]
