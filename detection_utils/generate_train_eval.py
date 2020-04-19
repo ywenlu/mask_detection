@@ -79,7 +79,9 @@ if __name__ == "__main__":
             train_df = df
         else:
             train_df = df.loc[~df['filename'].str.startswith(args.v), :]
+        train_df = train_df.sample(frac=1)
         validation_df = df.loc[df['filename'].str.startswith(args.v), :]
+        validation_df = validation_df.sample(frac=1)
     else:
         examples_list = list(df['filename'].unique())
         random.seed(42)
