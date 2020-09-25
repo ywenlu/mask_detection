@@ -4,6 +4,6 @@ pillow
 lxml
 jupyter
 matplotlib
-tensorflow==2.0
+tensorflow==2.0.3
 scikit-learn
 tqdm
